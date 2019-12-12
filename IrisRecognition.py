@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import cv2
 from scipy.signal import convolve2d
 
-def Orig_to_GreySc():
+def orig_to_greysc():
     name_value = 1
     for filename in glob.glob('Iris_Training_Dataset_Orig/*.JPG'):
         im = Image.open(filename)
@@ -16,7 +16,7 @@ def Orig_to_GreySc():
         gs_im.save('Iris_Training_Dataset_GS/Image_GS_{}.JPG'.format(str(name_value)))
         name_value += 1
 
-def Qual_Reduction():
+def qual_reduction():
     ''' Reduces the quality of a picture by 50%. '''
     name_value = 1
     for filename in glob.glob('Iris_Training_Dataset_GS_Cropped/*.JPG'):
@@ -146,7 +146,7 @@ def vectors_in_vspace(training_dataset_address, identity_texts):
     vectors_in_vspace = []
     counter = 1
     for file in glob.glob(training_dataset_address + '/Image_GS_*.JPG'):
-        print(training_dataset_address + '/Image_GS_{}.JPG'.format(counter))
+        print("'{}/Image_GS_{}.JPG' being processed.".format(training_dataset_address, counter))
         image_1 = cv2.imread(training_dataset_address + '/Image_GS_{}.JPG'.format(counter))
         image_1_array = np.asarray(image_1)
         image_1_RGB_reduced = RGB_reduction(image_1_array)
@@ -156,7 +156,7 @@ def vectors_in_vspace(training_dataset_address, identity_texts):
             pooled_list.append(pooling_layer(item, 13))
         image_1_vector = vectorize_multiple_matrices(pooled_list)
         vectors_in_vspace.append(image_1_vector)
-        print("iteration " + str(counter))
+        print("Iteration {} successfully completed.".format(str(counter)))
         counter += 1
     vectors_in_vspace_id = []
     id_numb = 0
@@ -179,14 +179,14 @@ def find_match(vectors_in_vspace_id, some_vector):
         navig_dict[dist] = vectors_in_vspace_id[i][0]
         distance_list.append(dist)
     min_dist = min(distance_list)
-    print(min_dist)
+    print("\nBest Match at a Distance Score: " + str(min_dist))
     min_dist_id = navig_dict[min_dist]
     return vectors_in_vspace_id[min_dist_id]
 
 if __name__ == "__main__":
     #Some tinkering with logistical stuff.
-    Orig_to_GreySc()
-    Qual_Reduction()
+    orig_to_greysc()
+    qual_reduction()
     training_dataset_address = 'Iris_Training_Dataset_GS_CrandRedQ'
     identity_texts = ["Name: Anna Tenikhina\nAge: 20\nLocation: Moscow, Russia\nImage Date: Jan 20, 2016", "Name: Alexandra Yuriyevna\nAge: 42\nLocation: Saint Petersburg, Russia\nImage Date: Jan 17, 2016", "Name: Maria Last_Name_Unknown\nAge: 18\nLocation: Moscow, Russia\nImage Date: Jan 11, 2016", "Name: Battemuulen Naranbat\nAge: 19\nLocation: Amsterdam, Netherlands\nImage Date: Jan 13, 2016", "Name: Anastasiya Last_Name_Unknown\nAge: 21\nLocation: Moscow, Russia\nImage Date: Jan 11, 2016"]
     vectors_in_vspace_id = vectors_in_vspace(training_dataset_address, identity_texts)
