@@ -115,22 +115,134 @@ def convolution_layer(matrix, features_folder):
         output_list_of_matrices.append(convolved_matrix)
     return output_list_of_matrices
 
-def pooling_layer:
+def pooling_layer(matrix, dimension):
+    blank_matrix = []
+    counter_1 = 0
+    for i in range(int(len(matrix)/dimension)):
+        blank_row = []
+        counter_2 = 0
+        for j in range(int(len(matrix[0])/dimension)):
+            blank_row.append(int(np.mean(matrix[counter_1:(counter_1 + dimension), counter_2:(counter_2 + dimension)])))
+            counter_2 += dimension
+        blank_matrix.append(blank_row)
+        counter_1 += dimension
+    return blank_matrix
 
+def vectorize_matrix(matrix):
+    blank_vector = []
+    matrix = np.asanyarray(matrix)
+    for i in range(len(matrix[0])):
+        blank_vector.extend(matrix[:, i])
+    return blank_vector
+
+def vectorize_multiple_matrices(a_list):
+    blank_vector = []
+    for matrix in a_list:
+        micro_blank_vector = vectorize_matrix(matrix)
+        blank_vector.extend(micro_blank_vector)
+    return blank_vector
+
+def vectors_in_vspace(training_dataset_address, identity_texts):
+    vectors_in_vspace = []
+    counter = 1
+    for file in glob.glob(training_dataset_address + '/Image_GS_*.JPG'):
+        print(training_dataset_address + '/Image_GS_{}.JPG'.format(counter))
+        image_1 = cv2.imread(training_dataset_address + '/Image_GS_{}.JPG'.format(counter))
+        image_1_array = np.asarray(image_1)
+        image_1_RGB_reduced = RGB_reduction(image_1_array)
+        image_1_convolved = convolution_layer(image_1_RGB_reduced, features_folder='Features_for_Convolution')
+        pooled_list = []
+        for item in image_1_convolved:
+            pooled_list.append(pooling_layer(item, 13))
+        image_1_vector = vectorize_multiple_matrices(pooled_list)
+        vectors_in_vspace.append(image_1_vector)
+        print("iteration " + str(counter))
+        counter += 1
+    vectors_in_vspace_id = []
+    id_numb = 0
+    for vector in vectors_in_vspace:
+        vectors_in_vspace_id.append((id_numb, vector, identity_texts[id_numb]))
+        id_numb += 1
+    vectors_in_vspace_id.sort()
+    return vectors_in_vspace_id
+
+def find_dist(v1, v2):
+    v1_t_a = np.array(tuple(v1))
+    v2_t_a = np.array(tuple(v2))
+    return np.linalg.norm(v1_t_a-v2_t_a)
+
+def find_match(vectors_in_vspace_id, some_vector):
+    distance_list = []
+    navig_dict = {}
+    for i in range(len(vectors_in_vspace_id)):
+        dist = find_dist(vectors_in_vspace_id[i][1], some_vector)
+        navig_dict[dist] = vectors_in_vspace_id[i][0]
+        distance_list.append(dist)
+    min_dist = min(distance_list)
+    print(min_dist)
+    min_dist_id = navig_dict[min_dist]
+    return vectors_in_vspace_id[min_dist_id]
 
 if __name__ == "__main__":
     #Some tinkering with logistical stuff.
     Orig_to_GreySc()
     Qual_Reduction()
-    main_list = []
+    training_dataset_address = 'Iris_Training_Dataset_GS_CrandRedQ'
+    identity_texts = ["Name: Anna Tenikhina\nAge: 20\nLocation: Moscow, Russia\nImage Date: Jan 20, 2016", "Name: Alexandra Yuriyevna\nAge: 42\nLocation: Saint Petersburg, Russia\nImage Date: Jan 17, 2016", "Name: Maria Last_Name_Unknown\nAge: 18\nLocation: Moscow, Russia\nImage Date: Jan 11, 2016", "Name: Battemuulen Naranbat\nAge: 19\nLocation: Amsterdam, Netherlands\nImage Date: Jan 13, 2016", "Name: Anastasiya Last_Name_Unknown\nAge: 21\nLocation: Moscow, Russia\nImage Date: Jan 11, 2016"]
+    vectors_in_vspace_id = vectors_in_vspace(training_dataset_address, identity_texts)
+
+    im = Image.open('7A7E9634-E90E-46FD-9AB1-DC22C500750E.JPG')
+    gs_im = im.convert('L')
+    gs_im.save('Test_GS1.JPG')
+
+    im = Image.open("Test_GS1_Cr.JPG")
+    im.save('Test_GS_Cr_Q.JPG', quality=50)
+
+    test_1 = cv2.imread('Test_Dataset/Test_1.JPG')
+    test_1_image_array = np.asarray(test_1)
+    test_1_RGB_reduced_image = RGB_reduction(test_1_image_array)
+    test_1_convolved = convolution_layer(test_1_RGB_reduced_image, features_folder='Features_for_Convolution')
+    pooled_list = []
+    for item in test_1_convolved:
+        pooled_list.append(pooling_layer(item, 13))
+    test_1_vector = vectorize_multiple_matrices(pooled_list)
+
+    print(find_match(vectors_in_vspace_id, test_1_vector)[2])
+
+    '''main_list = []
     for item in glob.glob('Iris_Training_Dataset_GS_CrandRedQ/*.JPG'):
         read_image = cv2.imread(item)
         image_array = np.asarray(read_image)
         RGB_reduced_image = RGB_reduction(image_array)
         main_list.append(convolution_layer(RGB_reduced_image, features_folder = 'Features_for_Convolution'))
     print(main_list[0])
+    for i in range(5):
+        rec_img = image_from_array_reconstruction(main_list[4][i])
+        rec_img.save("Test{}.JPG".format(i))
+    test_pooled = pooling_layer(main_list[0][0], 13)
+    print(test_pooled)
+    test_save = np.asanyarray(test_pooled)
+    print(test_save)
+    test_save = image_from_array_reconstruction(test_save)
+    test_save.save('POOLEDTEST.JPG')
+    print(vectorize_matrix(test_pooled))
+    main_vector = vectorize_matrix(test_pooled)
+    some_vector = [0]*len(vectorize_matrix(test_pooled))
+    print(some_vector)
+    print(len(some_vector) == len(vectorize_matrix(test_pooled)))
+    print(find_dist(main_vector, some_vector))
+    print(find_dist([3, 0], [0, 4]))
 
-
+    #TESTING
+    test_1 = cv2.imread('Test_Dataset/Test_1.JPG')
+    test_1_image_array = np.asarray(test_1)
+    test_1_RGB_reduced_image = RGB_reduction(test_1_image_array)
+    test_1_convolved = convolution_layer(test_1_RGB_reduced_image, features_folder='Features_for_Convolution')
+    pooled_list = []
+    for item in test_1_convolved:
+        pooled_list.append(pooling_layer(item, 13))
+    test_1_vector = vectorize_multiple_matrices(pooled_list)
+    print(test_1_vector)
 
     #some_picture = cv2.imread('Simple_Folder/SS.JPG')
     #pic_to_array = np.asarray(some_picture)
@@ -142,7 +254,7 @@ if __name__ == "__main__":
     #some_image = image_from_array_reconstruction(output)
 
     #some_image.save('Test.JPG')
-    #for img in glob.glob('{}/*.JPG'.format(folder_name)):
+    #for img in glob.glob('{}/*.JPG'.format(folder_name)):'''
 
     '''blank_list = []
     some_array = pic_to_array[0][0]
