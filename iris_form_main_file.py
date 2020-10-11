@@ -7,7 +7,7 @@ from scipy.signal import convolve2d
 def orig_to_greysc():
     ''' For each file in the Training Dataset folder, opens and greyscales the image. Then, saves it. '''
     name_value = 1
-    for filename in glob.glob('Iris_Training_Dataset_Orig/*.JPG'):
+    for filename in glob.glob('iris_training_dataset_orig/*.JPG'):
         im = Image.open(filename)
         gs_im = im.convert('L')
         gs_im.save('iris_training_dataset_gs/Image_GS_{}.JPG'.format(str(name_value)))
@@ -208,8 +208,8 @@ if __name__ == "__main__":
     qual_reduction()
     # Clarifies the address of the training dataset.
     training_dataset_address = 'iris_training_dataset_gs_CrandRedQ'
-    # Reads and processes the input images' labels from the training_dataset_labels file.
-    pre_identity_texts = open("training_dataset_labels")
+    # Reads and processes the input images' labels from the training_dataset_labels.txt file.
+    pre_identity_texts = open("training_dataset_labels.txt")
     pre_identity_texts = pre_identity_texts.readlines()
     pre_identity_texts = [i for i in pre_identity_texts if i != "\n"]
     counter = 0

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Iris_Form.iml" filepath="$PROJECT_DIR$/.idea/Iris_Form.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/iris_form.iml" filepath="$PROJECT_DIR$/.idea/iris_form.iml" />
     </modules>
   </component>
 </project>
