@@ -12,4 +12,4 @@ neural network thanks to my Linear Algebra class.
 
 Here is probably my favorite shot -- the iris pattern of Anastasiya Bukryeyeva's left eye, January 11, 2016.
 
-![The iris pattern of Anastasiya Bukryeyeva's left eye, January 11, 2016]("iris_training_dataset_orig/IMG_3208.JPG")
+![The iris pattern of Anastasiya Bukryeyeva's left eye, January 11, 2016](iris_training_dataset_orig/IMG_3208.JPG)
