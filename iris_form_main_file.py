@@ -10,15 +10,15 @@ def orig_to_greysc():
     for filename in glob.glob('Iris_Training_Dataset_Orig/*.JPG'):
         im = Image.open(filename)
         gs_im = im.convert('L')
-        gs_im.save('Iris_Training_Dataset_GS/Image_GS_{}.JPG'.format(str(name_value)))
+        gs_im.save('iris_training_dataset_gs/Image_GS_{}.JPG'.format(str(name_value)))
         name_value += 1
 
 def qual_reduction():
     ''' Reduces the quality of a picture by 50% in the cropped Training Dataset folder. '''
     name_value = 1
-    for filename in glob.glob('Iris_Training_Dataset_GS_Cropped/*.JPG'):
+    for filename in glob.glob('iris_training_dataset_gs_cropped/*.JPG'):
         im = Image.open(filename)
-        im.save('Iris_Training_Dataset_GS_CrandRedQ/Image_GS_{}.JPG'.format(str(name_value)), quality=50)
+        im.save('iris_training_dataset_gs_CrandRedQ/Image_GS_{}.JPG'.format(str(name_value)), quality=50)
         name_value += 1
 
 def RGB_reduction(image):
@@ -148,7 +148,7 @@ def vectors_in_vspace(training_dataset_address, identity_texts):
         # RGB-reduces it into a matrix of values, since the image is already greyscale.
         image_1_RGB_reduced = RGB_reduction(image_1_array)
         # Performs convolution between each of the features and the matrix. Adds to the convolution layer.
-        image_1_convolved = convolution_layer(image_1_RGB_reduced, features_folder='Features_for_Convolution')
+        image_1_convolved = convolution_layer(image_1_RGB_reduced, features_folder='features_for_convolution')
         # Pools all the matrices in the convolution layer and adds the resulting smaller matrices to a pooled_list.
         pooled_list = []
         for item in image_1_convolved:
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     orig_to_greysc()
     qual_reduction()
     # Clarifies the address of the training dataset.
-    training_dataset_address = 'Iris_Training_Dataset_GS_CrandRedQ'
+    training_dataset_address = 'iris_training_dataset_gs_CrandRedQ'
     # Reads and processes the input images' labels from the training_dataset_labels file.
     pre_identity_texts = open("training_dataset_labels")
     pre_identity_texts = pre_identity_texts.readlines()
@@ -222,13 +222,13 @@ if __name__ == "__main__":
     # Creates a vector space based on the feature vectors of the input images.
     vectors_in_vspace_id = vectors_in_vspace(training_dataset_address, identity_texts)
     # Opens the test case from the Test Dataset folder.
-    test_1 = cv2.imread('Test_Dataset/Test_1.JPG')
+    test_1 = cv2.imread('test_dataset/Test_1.JPG')
     # Creates an array out of it.
     test_1_image_array = np.asarray(test_1)
     # Reduces the image array into a matrix of values.
     test_1_RGB_reduced_image = RGB_reduction(test_1_image_array)
     # Creates a Convolution Layer using the existing features.
-    test_1_convolved = convolution_layer(test_1_RGB_reduced_image, features_folder='Features_for_Convolution')
+    test_1_convolved = convolution_layer(test_1_RGB_reduced_image, features_folder='features_for_convolution')
     #Creates an empty list to hold the outputs matrices of pooling.
     pooled_list = []
     # Executes pooling on each feature map and appends the matrices into the pooled_list.
